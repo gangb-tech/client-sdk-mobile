@@ -23,6 +23,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "aho-corasick"
+version = "0.7.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e37cfd5e7657ada45f742d6e99ca5788580b5c529dc78faf11ece6dc702656f"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "ansi_term"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -620,9 +629,9 @@ checksum = "e88a8acf291dafb59c2d96e8f59828f3838bb1a70398823ade51a84de6a6deed"
 
 [[package]]
 name = "feature-probe-event"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ceeadf8b61053a5a93ea72d1d23826ec039e9fe662f096a3f1630c05b301a930"
+checksum = "dd11246cf65c40bcd1bbed0e36187a4a21549579e2ccd292f79eb45390fc18ba"
 dependencies = [
  "axum",
  "headers",
@@ -639,7 +648,7 @@ dependencies = [
 [[package]]
 name = "feature-probe-server"
 version = "1.0.1"
-source = "git+https://github.com/FeatureProbe/feature-probe-server.git#bb70f1dc6bafc458d94e5a2a9d22827646cefb0f"
+source = "git+https://github.com/FeatureProbe/feature-probe-server.git#da7a4ca48d2b69df88e5fea5121976a6d5b819a7"
 dependencies = [
  "anyhow",
  "axum",
@@ -710,7 +719,7 @@ dependencies = [
  "lazy_static",
  "parking_lot",
  "rand",
- "regex 0.2.11",
+ "regex 1.5.6",
  "reqwest",
  "rusty-hook",
  "semver 1.0.9",
@@ -1602,7 +1611,7 @@ version = "0.2.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9329abc99e39129fcceabd24cf5d85b4671ef7c29c50e972bc5afe32438ec384"
 dependencies = [
- "aho-corasick",
+ "aho-corasick 0.6.10",
  "memchr",
  "regex-syntax 0.5.6",
  "thread_local 0.3.6",
@@ -1615,6 +1624,8 @@ version = "1.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d83f127d94bdbcda4c8cc2e50f6f84f4b611f69c902699ca385a39c3a75f9ff1"
 dependencies = [
+ "aho-corasick 0.7.18",
+ "memchr",
  "regex-syntax 0.6.26",
 ]
 

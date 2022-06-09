@@ -1,0 +1,111 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.source
+
+    exclude "**/R.class"  //排除`R.class`
+    exclude "**/BuildConfig.class"  //排除`BuildConfig.class`
+}
+
+//--- 修改配置一 ---
+ext {path=
+    PUBLISH_GROUP_ID = 'com.featureprobe'
+    PUBLISH_ARTIFACT_ID = 'client-sdk-android'
+    PUBLISH_VERSION = '1.0.1'
+}
+
+//--- 修改配置二 ---
+ext["signing.keyId"] = System.getProperty("SIGN_KEYID")
+ext["signing.password"] = System.getProperty('SIGN_PASSWORD')
+ext["signing.secretKeyRingFile"] = './secring.gpg'
+ext["ossrhUsername"] = System.getProperty('OSSRH_USERNAME')
+ext["ossrhPassword"] = System.getProperty('OSSRH_PASSWORD')
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            println("publish-maven Log-------> PUBLISH_GROUP_ID: $PUBLISH_GROUP_ID; PUBLISH_ARTIFACT_ID: $PUBLISH_ARTIFACT_ID; PUBLISH_VERSION: $PUBLISH_VERSION")
+            // The coordinates of the library, being set from variables that
+            // we'll set up in a moment
+
+            //配置一传入的参数
+            groupId PUBLISH_GROUP_ID
+            artifactId PUBLISH_ARTIFACT_ID
+            version PUBLISH_VERSION
+
+            // Two artifacts, the `aar` and the sources
+            artifact("$buildDir/outputs/aar/sdk-release.aar")
+            artifact androidSourcesJar
+
+            // Self-explanatory metadata for the most part
+            pom {
+                //--- 修改配置三 ---
+                name = PUBLISH_ARTIFACT_ID
+                description = 'FeatureProbe Server Side SDK for Android' //添加文件描述
+                // If your project has a dedicated site, use its URL here
+                url = 'https://github.com/FeatureProbe/client-sdk-mobile' //项目github链接
+                licenses {
+                    license {
+                        //协议类型，一般默认Apache License2.0的话不用改：
+                        name = 'Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        //--- 修改配置四 ---
+                        id = 'SSebo'     //你的sonatype用户ID
+                        name = 'SSebo'   //你的sonatype用户名
+                    }
+                }
+                // Version control info, if you're using GitHub, follow the format as seen here
+                scm {
+                    //--- 修改配置五 ---
+                    //修改成你的Git地址：
+                    connection = 'scm:git@github.com:FeatureProbe/client-sdk-mobile.git'
+                    developerConnection = 'scm:git@github.com:FeatureProbe/client-sdk-mobile.git'
+                    //分支地址：
+                    url = 'https://github.com/FeatureProbe/client-sdk-mobile'
+                }
+                // A slightly hacky fix so that your POM will include any transitive dependencies
+                // that your library builds upon
+                withXml {
+                    def dependenciesNode = asNode().appendNode('dependencies')
+
+                    project.configurations.implementation.allDependencies.each {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        // The repository to publish to, Sonatype/MavenCentral
+        maven {
+            // This is an arbitrary name, you may also use "mavencentral" or
+            // any other name that's descriptive for you
+
+            //--- 修改配置六 ---
+            name = "client-sdk-mobile"
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            // You only need this if you want to publish snapshots, otherwise just set the URL
+            // to the release repo directly
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            // The username and password we've fetched earlier
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+signing {
+    sign publishing.publications
+}
